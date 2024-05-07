@@ -7,7 +7,9 @@ interface IDropdownProps {
 
 const Dropdown: React.FC<IDropdownProps> = ({ data }) => {
     const [cursor, setCursor] = useState(-1);
+    const [isScrolling, setIsScrolling] = useState(false);
     const cursorRef = useRef(-1);
+    const scrollerRef = useRef<NodeJS.Timeout | null>(null);
 
     const scrollIntoView = (index: number) => {
         const ul = document.getElementById("dataList");
@@ -35,10 +37,25 @@ const Dropdown: React.FC<IDropdownProps> = ({ data }) => {
         }
     };
 
+    const handleScroll = () => {
+        setIsScrolling(true);
+        if (scrollerRef.current) clearTimeout(scrollerRef.current);
+
+        scrollerRef.current = setTimeout(() => {
+            setIsScrolling(false);
+        }, 250);
+    };
+
     useEffect(() => {
         window.addEventListener("keydown", handleKeyDown);
+
+        const element = document.querySelector("ul#dataList");
+        element?.addEventListener("scroll", () => handleScroll());
+
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
+            element?.removeEventListener("scroll", () => handleScroll());
+            scrollerRef.current && clearTimeout(scrollerRef.current);
         };
     }, []);
 
@@ -49,8 +66,8 @@ const Dropdown: React.FC<IDropdownProps> = ({ data }) => {
                     <li
                         key={index}
                         className={`drop-item ${cursor == index && "focus"}`}
-                        onMouseEnter={() => updateCursor(index)}
-                        onMouseLeave={() => updateCursor(-1)}
+                        onMouseEnter={() => !isScrolling && updateCursor(index)}
+                        onMouseLeave={() => !isScrolling && updateCursor(-1)}
                     >
                         {item}
                     </li>
