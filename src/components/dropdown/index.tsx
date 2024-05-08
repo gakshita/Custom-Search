@@ -43,7 +43,7 @@ const Dropdown: React.FC<IDropdownProps> = ({ data }) => {
 
         scrollerRef.current = setTimeout(() => {
             setIsScrolling(false);
-        }, 250);
+        }, 100);
     };
 
     useEffect(() => {
@@ -66,7 +66,11 @@ const Dropdown: React.FC<IDropdownProps> = ({ data }) => {
                     <li
                         key={index}
                         className={`drop-item ${cursor == index && "focus"}`}
-                        onMouseEnter={() => !isScrolling && updateCursor(index)}
+                        onMouseOver={() =>
+                            !isScrolling &&
+                            cursor !== index &&
+                            updateCursor(index)
+                        }
                         onMouseLeave={() => !isScrolling && updateCursor(-1)}
                     >
                         {item}
